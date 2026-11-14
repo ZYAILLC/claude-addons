@@ -8,7 +8,8 @@ ZYAI 的 [Claude Code](https://claude.com/claude-code) 扩展，统一发布为�
 
 | 名称 | 类型 | 作用 |
 | --- | --- | --- |
-| [quota-gauge](quota-gauge/README-zh.md) | mod | 输入框上方的环形额度表：5 小时和 7 天额度还剩多少、5 小时额度的重置倒计时，以及下次续费日期。 |
+| [zy-quota](zy-quota/README-zh.md) | mod | 输入框上方的环形额度表：5 小时和 7 天额度还剩多少、5 小时额度的重置倒计时，以及下次续费日期。 |
+| [zy-themes](zy-themes/README-zh.md) | mod | 桌面应用对话区后面的主题：6 幅手绘风背景（其中 3 幅带动画）或你自己的图片，点 🎨 按钮或用 `/zy-theme` 切换。 |
 
 ## 安装
 
@@ -36,7 +37,8 @@ ZYAI 的 [Claude Code](https://claude.com/claude-code) 扩展，统一发布为�
 claude-addons/
 ├── .claude-plugin/
 │   └── marketplace.json      # 市场清单，登记所有子项目
-├── quota-gauge/              # 每个子项目一个目录，插件和 mod 都放在这一层
+├── zy-quota/                 # 每个子项目一个目录，插件和 mod 都放在这一层
+├── zy-themes/
 ├── README.md                 # 英文
 ├── README-zh.md              # 简体中文
 └── LICENSE
@@ -50,7 +52,7 @@ claude-addons/
 2. 写好它自己的 `README.md` 和 `README-zh.md`。
 3. 在 [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) 的 `plugins` 数组里登记，`source` 写 `./<name>`。
 4. 在 `README.md` 和 `README-zh.md` 的[已收录](#已收录)里各加一行。
-5. 面向用户的文案（命令描述、mod 界面文字）一律用英文，只有 README 提供中英两版。
+5. 面向用户的文案（命令描述、mod 界面文字）默认用英文。面板类界面可以提供切换到简体中文的按钮；README 一律提供中英两版。
 
 本地开发和检查：
 

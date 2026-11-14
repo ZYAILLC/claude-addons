@@ -1,6 +1,6 @@
 [English](README.md) | 简体中文
 
-# quota-gauge
+# zy-quota
 
 一个 Claude Code mod，在输入框上方的提示栏里显示订阅额度：
 
@@ -17,10 +17,14 @@
 
 ```
 /plugin marketplace add ZYAILLC/claude-addons
-/plugin install quota-gauge@claude-addons
+/plugin install zy-quota@claude-addons
 ```
 
-在 Claude 桌面应用里：点输入框旁的 **+**，选 **Plugins**，用 **Add marketplace** 添加 `ZYAILLC/claude-addons`，再点 **Add plugin**，选 `quota-gauge`。
+在 Claude 桌面应用里：点输入框旁的 **+**，选 **Plugins**，用 **Add marketplace** 添加 `ZYAILLC/claude-addons`，再点 **Add plugin**，选 `zy-quota`。
+
+## 额度面板
+
+`/zy-quota` 会在对话旁打开 **Quota** 侧边面板：更大的额度环、两个额度各自的重置时间，以及一个 **Refresh** 按钮，点一下立即读取账户用量。面板最小化后，会缩成对话区角落里的小额度条。
 
 ## 数据来源
 

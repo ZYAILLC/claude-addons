@@ -1,0 +1,28 @@
+{
+  "name": "zy-themes",
+  "version": "0.1.0",
+  "description": "Themes for the Claude desktop app: six painted backdrops (three animated) or a picture of your own behind the chat, picked from a 🎨 button or /zy-theme and kept per session, per project or for every project.",
+  "author": {
+    "name": "ZYAI",
+    "url": "https://github.com/ZYAILLC"
+  },
+  "homepage": "https://github.com/ZYAILLC/claude-addons/tree/main/zy-themes",
+  "repository": "https://github.com/ZYAILLC/claude-addons",
+  "license": "Apache-2.0",
+  "keywords": [
+    "theme",
+    "backdrop",
+    "background",
+    "desktop",
+    "mod"
+  ],
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "button": {
+      "type": "boolean",
+      "title": "Theme button",
+      "description": "Show the theme button above the prompt in the desktop app. Off, open the themes with /zy-theme.",
+      "default": true
+    }
+  }
+}

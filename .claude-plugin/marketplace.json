@@ -11,14 +11,25 @@
   },
   "plugins": [
     {
-      "name": "quota-gauge",
-      "source": "./quota-gauge",
+      "name": "zy-quota",
+      "source": "./zy-quota",
       "description": "A ring gauge above the prompt: what is left of your 5-hour and 7-day limits, the time until the 5-hour reset, and the next renewal date.",
       "category": "productivity",
       "tags": [
         "mod",
         "quota",
         "usage"
+      ]
+    },
+    {
+      "name": "zy-themes",
+      "source": "./zy-themes",
+      "description": "Themes behind the chat in the Claude desktop app: six painted backdrops (three animated) or your own picture, picked from a 🎨 button or /zy-theme.",
+      "category": "productivity",
+      "tags": [
+        "mod",
+        "theme",
+        "backdrop"
       ]
     }
   ]

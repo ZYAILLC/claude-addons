@@ -4,7 +4,7 @@ import type { On } from 'claude-code'
 const NOW = Date.parse('2026-11-14T08:00:00Z')
 
 const BAND = {
-  plugin: 'quota-gauge',
+  plugin: 'zy-quota',
   component: 'AbovePrompt',
   props: {
     hasSurvey: false,
@@ -31,6 +31,8 @@ const engine = (on: On) => {
   on('clock.now', () => ({ value: NOW }))
   on('clock.every', () => ({ value: undefined }))
   on('session.authorize', () => ({ value: null }))
+  on('command.register', () => ({ value: { command: 'zy-quota' } }))
+  on('ui.open', () => ({ value: { isPlaced: true, requestId: 'zy-quota' } }))
 }
 
 const start = { cwd: '/', surface: 'terminal', isInteractive: true } as const
@@ -69,5 +71,52 @@ test('a survey keeps the band to the engine', async ($, on) => {
 
   const ui = await $.ui.mount({ ...BAND, props: { ...BAND.props, hasSurvey: true }, surface: 'terminal' })
   expect((await ui.find({ type: 'Text' }))?.text).toBe('engine')
+  await ui.unmount()
+})
+
+const PANE = (placement: 'dock' | 'inline' | 'widget') =>
+  ({
+    plugin: 'zy-quota',
+    component: 'Pane',
+    requestId: 'zy-quota',
+    props: { title: 'Quota', isFocused: false, bodyColumns: 60, placement, scroll: { offset: 0, bodyRows: 20 }, view: {} },
+  }) as const
+
+test('/zy-quota opens the pane, with the large gauge and a refresh button', async ($, on) => {
+  engine(on)
+  await $.session.start({ ...start, surface: 'desktop' })
+
+  const said = await $.command.run({
+    command: 'zy-quota',
+    args: '',
+    origin: { kind: 'composer' },
+    presentation: { isFullscreen: false, columns: 100 },
+  })
+  expect(said.text).toBe('Quota pane opened.')
+
+  const ui = await $.ui.mount({ ...PANE('dock'), surface: 'desktop' })
+  const big = await ui.find({ type: 'Svg' })
+  expect(big?.props.width).toBe(300)
+  expect(String(big?.props.source)).toContain('resets in 4h 21m')
+  expect((await ui.find({ type: 'Button' }))?.key).toBe('refresh')
+  await ui.unmount()
+})
+
+test('minimized to a widget, the pane shows the small gauge alone', async ($, on) => {
+  engine(on)
+  await $.session.start({ ...start, surface: 'desktop' })
+
+  const ui = await $.ui.mount({ ...PANE('widget'), surface: 'desktop' })
+  expect((await ui.find({ type: 'Svg' }))?.props.alt).toBe('5H 98% · 7D 100% · EXP --')
+  expect(await ui.find({ type: 'Button' })).toBeUndefined()
+  await ui.unmount()
+})
+
+test('the terminal pane reads as text rows', async ($, on) => {
+  engine(on)
+  await $.session.start(start)
+
+  const ui = await $.ui.mount({ ...PANE('dock'), surface: 'terminal' })
+  expect((await ui.find({ type: 'Text', text: /^5H/ }))?.text).toBe('5H  98% left · resets in 4h 21m · ' + new Date('2026-11-14T12:21:00Z').toTimeString().slice(0, 5))
   await ui.unmount()
 })

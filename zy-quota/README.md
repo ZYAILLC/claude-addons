@@ -1,6 +1,6 @@
 English | [简体中文](README-zh.md)
 
-# quota-gauge
+# zy-quota
 
 A Claude Code mod that keeps your subscription quota in view, in a band above the prompt:
 
@@ -17,10 +17,14 @@ The gauge's text is always in English.
 
 ```
 /plugin marketplace add ZYAILLC/claude-addons
-/plugin install quota-gauge@claude-addons
+/plugin install zy-quota@claude-addons
 ```
 
-In the Claude desktop app: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `ZYAILLC/claude-addons`, then **Add plugin** and pick `quota-gauge`.
+In the Claude desktop app: click **+** next to the prompt box, then **Plugins**, **Add marketplace** with `ZYAILLC/claude-addons`, then **Add plugin** and pick `zy-quota`.
+
+## The quota pane
+
+`/zy-quota` opens a **Quota** pane beside the chat: larger rings, when each limit resets, and a **Refresh** button that reads the account's figures at once. Minimized, the pane shrinks to the small gauge in a corner of the chat.
 
 ## Where the figures come from
 

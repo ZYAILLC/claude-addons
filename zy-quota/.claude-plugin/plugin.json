@@ -1,12 +1,12 @@
 {
-  "name": "quota-gauge",
+  "name": "zy-quota",
   "version": "0.1.0",
   "description": "A ring gauge above the prompt for your Claude subscription: what is left of the 5-hour and 7-day limits, the time until the 5-hour reset, and the next renewal date.",
   "author": {
     "name": "ZYAI",
     "url": "https://github.com/ZYAILLC"
   },
-  "homepage": "https://github.com/ZYAILLC/claude-addons/tree/main/quota-gauge",
+  "homepage": "https://github.com/ZYAILLC/claude-addons/tree/main/zy-quota",
   "repository": "https://github.com/ZYAILLC/claude-addons",
   "license": "Apache-2.0",
   "keywords": [

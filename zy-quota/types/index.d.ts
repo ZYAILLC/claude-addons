@@ -6,6 +6,6 @@ export type Account = { checked: boolean; renewsAt: string | null }
 
 declare module 'claude-code' {
   interface PluginState {
-    'quota-gauge': { limits: Quota[]; now: number; account: Account }
+    'zy-quota': { limits: Quota[]; now: number; pulledAt: number; account: Account }
   }
 }

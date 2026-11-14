@@ -8,7 +8,8 @@ ZYAI's extensions for [Claude Code](https://claude.com/claude-code), published a
 
 | Name | Kind | What it does |
 | --- | --- | --- |
-| [quota-gauge](quota-gauge/) | Mod | A ring gauge above the prompt: what is left of your 5-hour and 7-day limits, the time until the 5-hour reset, and the next renewal date. |
+| [zy-quota](zy-quota/) | Mod | A ring gauge above the prompt: what is left of your 5-hour and 7-day limits, the time until the 5-hour reset, and the next renewal date. |
+| [zy-themes](zy-themes/) | Mod | Themes behind the chat in the desktop app: six painted backdrops (three animated) or your own picture, picked from a 🎨 button or `/zy-theme`. |
 
 ## Install
 
@@ -36,7 +37,8 @@ Each sub-project is a Claude Code plugin with its own `.claude-plugin/plugin.jso
 claude-addons/
 ├── .claude-plugin/
 │   └── marketplace.json      # Marketplace manifest, lists every sub-project
-├── quota-gauge/              # One folder per sub-project, plugin or mod
+├── zy-quota/                 # One folder per sub-project, plugin or mod
+├── zy-themes/
 ├── README.md                 # English
 ├── README-zh.md              # Simplified Chinese
 └── LICENSE
@@ -50,7 +52,7 @@ claude-addons/
 2. Give it a `README.md` and a `README-zh.md`.
 3. Register it in the `plugins` array of [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json), with `source` set to `./<name>`.
 4. Add a row for it under [Available](#available) in both `README.md` and `README-zh.md`.
-5. Write user-facing text (command descriptions, mod UI) in English. Only the READMEs come in both languages.
+5. Write user-facing text (command descriptions, mod UI) in English by default. A pane or panel may offer a switch to Simplified Chinese; the READMEs always come in both languages.
 
 To develop and check it locally:
 
