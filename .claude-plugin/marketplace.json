@@ -1,0 +1,13 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-addons",
+  "owner": {
+    "name": "ZYAI",
+    "url": "https://github.com/ZYAILLC"
+  },
+  "metadata": {
+    "description": "ZYAI's Claude Code extensions: plugins (skills, commands, agents, MCP servers) and mods (hooks modules that change Claude's interface and behaviour).",
+    "version": "0.1.0"
+  },
+  "plugins": []
+}
