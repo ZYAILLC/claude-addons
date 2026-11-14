@@ -1,5 +1,7 @@
 import type { ThemeSetArgs } from 'claude-code'
 
+import { PALETTES } from './palettes'
+
 /** A built-in theme: what the pane and the list say, the window it is made for, and the look it sets. */
 export type Theme = {
   id: string
@@ -9,22 +11,31 @@ export type Theme = {
   look: ThemeSetArgs
 }
 
-// Three still paintings (JPEGs in backdrops/) and three animated scenes (scenes.ts). A look sets the backdrop alone, never
-// `colors`: a palette paints the app's own surfaces, and its page color hides the painting behind it.
+// Three still paintings (JPEGs in backdrops/) and three animated scenes (scenes.ts). Each look sends its palette
+// (palettes.ts) with its backdrop in one set, so the window takes the painting's colors even where the backdrop itself
+// is not drawn yet.
 export const THEMES: readonly Theme[] = [
   {
     id: 'sakura',
     title: 'Sakura Dawn',
     blurb: 'Cherry blossoms over a misty lake at a pastel dawn.',
     window: 'light',
-    look: { overrideColorScheme: 'light', backdrop: { image: { source: 'backdrops/sakura-dawn.jpg' } } },
+    look: {
+      overrideColorScheme: 'light',
+      colors: PALETTES.sakura,
+      backdrop: { image: { source: 'backdrops/sakura-dawn.jpg' } },
+    },
   },
   {
     id: 'inkwash',
     title: 'Ink Mountains',
     blurb: 'Misty ink-wash mountains on rice paper at sunset.',
     window: 'light',
-    look: { overrideColorScheme: 'light', backdrop: { image: { source: 'backdrops/ink-mountains.jpg' } } },
+    look: {
+      overrideColorScheme: 'light',
+      colors: PALETTES.inkwash,
+      backdrop: { image: { source: 'backdrops/ink-mountains.jpg' } },
+    },
   },
   {
     id: 'petals',
@@ -33,6 +44,7 @@ export const THEMES: readonly Theme[] = [
     window: 'light',
     look: {
       overrideColorScheme: 'light',
+      colors: PALETTES.petals,
       backdrop: { scene: 'petals', glass: { blur: 16, tint: '#fbf8fc', opacity: 0.5 } },
     },
   },
@@ -41,7 +53,11 @@ export const THEMES: readonly Theme[] = [
     title: 'Moonlit Lake',
     blurb: 'A full moon over a still mountain lake.',
     window: 'dark',
-    look: { overrideColorScheme: 'dark', backdrop: { image: { source: 'backdrops/moonlit-lake.jpg' } } },
+    look: {
+      overrideColorScheme: 'dark',
+      colors: PALETTES.moonlit,
+      backdrop: { image: { source: 'backdrops/moonlit-lake.jpg' } },
+    },
   },
   {
     id: 'fireflies',
@@ -50,6 +66,7 @@ export const THEMES: readonly Theme[] = [
     window: 'dark',
     look: {
       overrideColorScheme: 'dark',
+      colors: PALETTES.fireflies,
       backdrop: { scene: 'fireflies', glass: { blur: 18, tint: '#0b1a1a', opacity: 0.5 } },
     },
   },
@@ -60,6 +77,7 @@ export const THEMES: readonly Theme[] = [
     window: 'dark',
     look: {
       overrideColorScheme: 'dark',
+      colors: PALETTES.starlit,
       backdrop: { scene: 'starlit', glass: { blur: 18, tint: '#120f22', opacity: 0.5 } },
     },
   },

@@ -2,7 +2,7 @@ English | [简体中文](README-zh.md)
 
 # zy-themes
 
-A Claude Code mod that puts a theme behind the chat in the Claude desktop app: six built-in paintings, three of them animated, or a picture of your own. The painting sits behind the chat; the desktop app frosts its panels over the animated ones so text stays readable.
+A Claude Code mod that puts a theme behind the chat in the Claude desktop app: six built-in paintings, three of them animated, or a picture of your own. The painting sits behind the chat; the desktop app frosts its panels over the animated ones so text stays readable. Each built-in theme also recolors the window (sidebar, chat, cards, code) in its painting's colors.
 
 | Theme | Window | Backdrop |
 | --- | --- | --- |
@@ -58,13 +58,14 @@ A backdrop picture has to sit inside the mod's folder, at most 1 MiB and 4096 px
 - On macOS it is scaled to 2560 px and saved as a JPEG, so any size works.
 - Elsewhere a JPEG or PNG under 1 MiB is copied as it is.
 
-The original path is remembered: when an update of the mod replaces its folder, the picture is copied again from where it came. Keep what matters in the middle of the picture, since the window crops its edges.
+The original path is remembered: when an update of the mod replaces its folder, the picture is copied again from where it came. Keep what matters in the middle of the picture, since the window crops its edges. A picture of your own keeps the app's own colors.
 
 ## What it needs
 
 - The Claude desktop app, up to date. Themes are drawn in the desktop and mobile apps only; in a terminal or an editor the commands still work and your choice is kept.
 - An older Claude Code refuses these themes; the command then asks you to update.
-- If the reply says the window does not draw themes, or the backdrop stays a plain color: update the desktop app (**Claude > Check for Updates…**), quit and reopen it, then start a new local session in the Code tab. A session that was open before the update keeps drawing the app's own look.
+- Some versions of the desktop app paint a theme's colors but not yet its backdrop, so the window takes the painting's colors with no picture behind the chat. The picture appears once the app draws backdrops, with no change to the mod.
+- If the reply says the window does not draw themes, or nothing changes at all: update the desktop app (**Claude > Check for Updates…**), quit and reopen it, then start a new local session in the Code tab. A session that was open before the update keeps drawing the app's own look.
 - With reduced motion turned on in your system, the animated scenes stand still.
 
 ## What it keeps

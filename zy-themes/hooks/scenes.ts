@@ -1,6 +1,8 @@
 // The animated scenes. Each is one SVG that fills any window (`xMidYMid slice`): a painted picture, embedded as a JPEG,
 // drifts slowly (a Ken Burns move), and a layer drawn on top moves through the CSS in the SVG's own <style>. A scene runs
-// no script and loads nothing. Motion stops when the system asks for reduced motion.
+// no script and loads nothing. Motion stops when the system asks for reduced motion. Every style sits in that sheet, each
+// moving thing with a class of its own, and no element carries a style attribute: a surface may draw a scene under a
+// policy that drops them.
 
 import { FIREFLY_FOREST } from './art/firefly-forest'
 import { PETAL_BREEZE } from './art/petal-breeze'
@@ -35,6 +37,7 @@ ${layer}
 export const fireflyScene = (): string => {
   const next = seeded(11)
   const flies: string[] = []
+  const timing: string[] = []
   for (let i = 0; i < 26; i++) {
     const side = next() < 0.5 ? next() * 0.32 : 0.68 + next() * 0.32
     const x = side * W
@@ -44,8 +47,12 @@ export const fireflyScene = (): string => {
     const blink = 2.5 + next() * 3.5
     const delay = next() * 10
     const path = `wander${i % 4}`
+    timing.push(
+      `.w${i}{animation:${path} ${f(dur)}s ease-in-out -${f(delay)}s infinite alternate}`,
+      `.b${i}{animation-duration:${f(blink)}s;animation-delay:-${f(delay)}s}`,
+    )
     flies.push(
-      `<g style="animation:${path} ${f(dur)}s ease-in-out -${f(delay)}s infinite alternate"><circle class="fly" cx="${f(x)}" cy="${f(y)}" r="${f(r * 3.2)}" fill="url(#glow)" style="animation-duration:${f(blink)}s;animation-delay:-${f(delay)}s"/><circle class="fly" cx="${f(x)}" cy="${f(y)}" r="${f(r * 0.55)}" fill="#fbffd6" style="animation-duration:${f(blink)}s;animation-delay:-${f(delay)}s"/></g>`,
+      `<g class="w${i}"><circle class="fly b${i}" cx="${f(x)}" cy="${f(y)}" r="${f(r * 3.2)}" fill="url(#glow)"/><circle class="fly b${i}" cx="${f(x)}" cy="${f(y)}" r="${f(r * 0.55)}" fill="#fbffd6"/></g>`,
     )
   }
   const style = `
@@ -54,7 +61,8 @@ export const fireflyScene = (): string => {
 @keyframes wander0{from{transform:translate(0,0)}to{transform:translate(38px,-26px)}}
 @keyframes wander1{from{transform:translate(0,0)}to{transform:translate(-30px,-40px)}}
 @keyframes wander2{from{transform:translate(0,0)}to{transform:translate(24px,30px)}}
-@keyframes wander3{from{transform:translate(0,0)}to{transform:translate(-42px,18px)}}`
+@keyframes wander3{from{transform:translate(0,0)}to{transform:translate(-42px,18px)}}
+${timing.join('\n')}`
   const defs = `<defs><radialGradient id="glow"><stop offset="0" stop-color="#f6ffb8" stop-opacity=".9"/><stop offset=".35" stop-color="#d9f77a" stop-opacity=".35"/><stop offset="1" stop-color="#b8f05a" stop-opacity="0"/></radialGradient></defs>`
   return scene(FIREFLY_FOREST, style, defs + flies.join(''))
 }
@@ -63,6 +71,7 @@ export const fireflyScene = (): string => {
 export const petalScene = (): string => {
   const next = seeded(23)
   const petals: string[] = []
+  const timing: string[] = []
   for (let i = 0; i < 22; i++) {
     const x = next() * W * 1.1 - W * 0.05
     const size = 7 + next() * 7
@@ -70,13 +79,18 @@ export const petalScene = (): string => {
     const delay = next() * fall
     const spin = 5 + next() * 6
     const tone = ['#ffd3e2', '#ffc2d6', '#fbe3ec', '#f7b6cc'][i % 4]
+    timing.push(
+      `.d${i}{animation:fall ${f(fall)}s linear -${f(delay)}s infinite}`,
+      `.t${i}{animation:sway ${f(spin)}s ease-in-out -${f(delay)}s infinite alternate}`,
+    )
     petals.push(
-      `<g style="animation:fall ${f(fall)}s linear -${f(delay)}s infinite"><g transform="translate(${f(x)} -40)"><g style="animation:sway ${f(spin)}s ease-in-out -${f(delay)}s infinite alternate"><path d="M0 ${f(-size)} C ${f(size * 0.9)} ${f(-size * 0.6)} ${f(size * 0.7)} ${f(size * 0.6)} 0 ${f(size)} C ${f(-size * 0.7)} ${f(size * 0.6)} ${f(-size * 0.9)} ${f(-size * 0.6)} 0 ${f(-size)} Z" fill="${tone}" opacity=".85"/></g></g></g>`,
+      `<g class="d${i}"><g transform="translate(${f(x)} -40)"><g class="t${i}"><path d="M0 ${f(-size)} C ${f(size * 0.9)} ${f(-size * 0.6)} ${f(size * 0.7)} ${f(size * 0.6)} 0 ${f(size)} C ${f(-size * 0.7)} ${f(size * 0.6)} ${f(-size * 0.9)} ${f(-size * 0.6)} 0 ${f(-size)} Z" fill="${tone}" opacity=".85"/></g></g></g>`,
     )
   }
   const style = `
 @keyframes fall{from{transform:translate(0,0)}to{transform:translate(-260px,${H + 120}px)}}
-@keyframes sway{from{transform:translateX(-26px) rotate(-35deg)}to{transform:translateX(26px) rotate(55deg)}}`
+@keyframes sway{from{transform:translateX(-26px) rotate(-35deg)}to{transform:translateX(26px) rotate(55deg)}}
+${timing.join('\n')}`
   return scene(PETAL_BREEZE, style, petals.join(''))
 }
 
@@ -84,21 +98,22 @@ export const petalScene = (): string => {
 export const starScene = (): string => {
   const next = seeded(37)
   const stars: string[] = []
+  const timing: string[] = []
   for (let i = 0; i < 70; i++) {
     const x = next() * W
     const y = next() * H * 0.55
     const r = 0.8 + next() * 1.6
     const dur = 2.5 + next() * 4
-    stars.push(
-      `<circle class="star" cx="${f(x)}" cy="${f(y)}" r="${f(r)}" style="animation-duration:${f(dur)}s;animation-delay:-${f(next() * dur)}s"/>`,
-    )
+    timing.push(`.k${i}{animation-duration:${f(dur)}s;animation-delay:-${f(next() * dur)}s}`)
+    stars.push(`<circle class="star k${i}" cx="${f(x)}" cy="${f(y)}" r="${f(r)}"/>`)
   }
   const style = `
 .star{fill:#f4f0ff;animation:twinkle ease-in-out infinite}
 @keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.95}}
 .shoot{stroke:url(#trail);stroke-width:2.2;stroke-linecap:round;opacity:0;animation:shoot 13s ease-in infinite}
 .s2{animation-delay:-6.5s;animation-duration:17s}
-@keyframes shoot{0%,88%{opacity:0;transform:translate(0,0)}90%{opacity:1}100%{opacity:0;transform:translate(-520px,260px)}}`
+@keyframes shoot{0%,88%{opacity:0;transform:translate(0,0)}90%{opacity:1}100%{opacity:0;transform:translate(-520px,260px)}}
+${timing.join('\n')}`
   const defs = `<defs><linearGradient id="trail" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="1"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>`
   const shooting = `<line class="shoot" x1="1380" y1="90" x2="1520" y2="20"/><line class="shoot s2" x1="980" y1="150" x2="1110" y2="85"/>`
   return scene(STARLIT_SEA, style, defs + stars.join('') + shooting)

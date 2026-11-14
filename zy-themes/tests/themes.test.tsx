@@ -2,6 +2,8 @@ import { expect, mock, test } from 'claude-code/testing'
 import type { On, ThemeSetArgs } from 'claude-code'
 import type { TestBody } from 'claude-code/testing'
 
+import { checkColors } from '../hooks/make-colors.js'
+
 type World = { sets: ThemeSetArgs[]; clears: () => number; store: Map<string, unknown>; opened: string[] }
 
 // Stands in for the engine: one session in /work/app, a store in memory, and a window that draws themes (or not).
@@ -54,6 +56,20 @@ test('a named theme is applied to the project and kept', async ($, on) => {
   expect(world.sets.at(-1)?.backdrop).toEqual({ scene: 'starlit', glass: { blur: 18, tint: '#120f22', opacity: 0.5 } })
   expect(world.sets.at(-1)?.overrideColorScheme).toBe('dark')
   expect(world.store.get('choice:project:/work/app')).toBe('starlit')
+})
+
+test('every built-in theme sends a palette the desktop will paint, with its backdrop', async ($, on) => {
+  const world = engine(on)
+  await $.session.start(start)
+
+  for (const id of ['sakura', 'inkwash', 'petals', 'moonlit', 'fireflies', 'starlit']) {
+    await run($, id)
+    const look = world.sets.at(-1)
+    expect(look?.backdrop).toBeDefined()
+    expect(look?.colors).toBeDefined()
+    // Lines under the design system's own bar still paint; this one would make Desktop ignore the whole theme.
+    expect(checkColors(look?.colors).filter(line => line.startsWith("Desktop won't paint"))).toEqual([])
+  }
 })
 
 test('names match by title in any case', async ($, on) => {
@@ -269,6 +285,8 @@ test('the animated scenes are drawn on desktop and left alone elsewhere', async 
     const ui = await $.ui.mount({ plugin: 'zy-themes', surface: 'desktop', component: 'Backdrop', props: { scene, plugin: 'zy-themes', glass: { blur: 16, opacity: 0.5 } } })
     const svg = await ui.find({ type: 'Svg' })
     expect(String(svg?.props.source)).toContain('prefers-reduced-motion')
+    // A surface may drop style attributes, so every style lives in the scene's own sheet.
+    expect(String(svg?.props.source)).not.toContain('style="')
     await ui.unmount()
   }
 
@@ -290,6 +308,7 @@ test('a picture of your own is copied in and shown', async ($, on) => {
   expect(sips?.at(-3)).toBe('/Users/me/Pictures/Beach Day.png')
   expect(sips?.at(-1)).toMatch(/\/user-images\/my-beach-day\.jpg$/)
   expect(world.sets.at(-1)?.backdrop).toEqual({ image: { source: 'user-images/my-beach-day.jpg' } })
+  expect(world.sets.at(-1)?.colors).toBeUndefined()
   expect(world.store.get('choice:project:/work/app')).toBe('my-beach-day')
   expect(await run($, 'list')).toContain('my-beach-day: Your picture: /Users/me/Pictures/Beach Day.png')
 })
