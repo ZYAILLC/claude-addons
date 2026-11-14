@@ -6,8 +6,20 @@
     "url": "https://github.com/ZYAILLC"
   },
   "metadata": {
-    "description": "ZYAI's Claude Code extensions: plugins (skills, commands, agents, MCP servers) and mods (hooks modules that change Claude's interface and behaviour).",
+    "description": "ZYAI's Claude Code extensions: plugins (skills, commands, agents, MCP servers) and mods (hooks modules that change Claude's interface and behaviour), one folder per sub-project.",
     "version": "0.1.0"
   },
-  "plugins": []
+  "plugins": [
+    {
+      "name": "quota-gauge",
+      "source": "./quota-gauge",
+      "description": "A ring gauge above the prompt: what is left of your 5-hour and 7-day limits, the time until the 5-hour reset, and the next renewal date.",
+      "category": "productivity",
+      "tags": [
+        "mod",
+        "quota",
+        "usage"
+      ]
+    }
+  ]
 }
