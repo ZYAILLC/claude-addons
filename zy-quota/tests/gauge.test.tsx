@@ -18,16 +18,17 @@ const BAND = {
 } as const
 
 // Stands in for the engine: 2% of the 5-hour window used, none of the 7-day one, signed out.
-const engine = (on: On) => {
+const BOTH = [
+  { kind: 'five_hour', percentUsed: 2, resetsAt: '2026-11-14T12:21:00Z' },
+  { kind: 'seven_day', percentUsed: 0 },
+]
+
+// A plan with a 7-day limit and no 5-hour one: 5% used, resetting in 3 days and 2 hours.
+const WEEK_ONLY = [{ kind: 'seven_day', percentUsed: 5, resetsAt: '2026-11-17T10:00:00Z' }]
+
+const engine = (on: On, rateLimits: object[] = BOTH) => {
   on('session.start', (_, e) => ({ cwd: e.cwd }))
-  on('session.usage', () => ({
-    value: {
-      rateLimits: [
-        { kind: 'five_hour', percentUsed: 2, resetsAt: '2026-11-14T12:21:00Z' },
-        { kind: 'seven_day', percentUsed: 0 },
-      ],
-    } as never,
-  }))
+  on('session.usage', () => ({ value: { rateLimits } as never }))
   on('clock.now', () => ({ value: NOW }))
   on('clock.every', () => ({ value: undefined }))
   on('session.authorize', () => ({ value: null }))
@@ -118,5 +119,39 @@ test('the terminal pane reads as text rows', async ($, on) => {
 
   const ui = await $.ui.mount({ ...PANE('dock'), surface: 'terminal' })
   expect((await ui.find({ type: 'Text', text: /^5H/ }))?.text).toBe('5H  98% left · resets in 4h 21m · ' + new Date('2026-11-14T12:21:00Z').toTimeString().slice(0, 5))
+  await ui.unmount()
+})
+
+test('with no 5-hour limit, the 5H figure and ring are left out', async ($, on) => {
+  engine(on, WEEK_ONLY)
+  await $.session.start({ ...start, surface: 'desktop' })
+
+  const band = await $.ui.mount({ ...BAND, surface: 'desktop' })
+  const ring = await band.find({ type: 'Svg' })
+  const source = String(ring?.props.source)
+  expect(ring?.props.alt).toBe('7D 95% · EXP --')
+  expect(source).not.toContain('5H')
+  // One track: the 7-day ring alone, with the days until it resets in the middle.
+  expect(source.match(/class="track"/g)?.length).toBe(1)
+  expect(source).toContain('>3d</text>')
+  await band.unmount()
+
+  const pane = await $.ui.mount({ ...PANE('dock'), surface: 'desktop' })
+  const big = String((await pane.find({ type: 'Svg' }))?.props.source)
+  expect(big).toContain('7D RESET')
+  expect(big).not.toContain('>5H<')
+  await pane.unmount()
+
+  const text = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect((await text.find({ type: 'Text' }))?.text).toBe('7D 95% · EXP --')
+  await text.unmount()
+})
+
+test('before any reading, both figures wait as --', async ($, on) => {
+  engine(on, [])
+  await $.session.start(start)
+
+  const ui = await $.ui.mount({ ...BAND, surface: 'terminal' })
+  expect((await ui.find({ type: 'Text' }))?.text).toBe('5H -- · 7D -- · EXP --')
   await ui.unmount()
 })

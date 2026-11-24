@@ -46,6 +46,9 @@ const remaining = (iso: string | undefined, t: number): Left | undefined => {
 
 const clockText = (r: Left | undefined) => (r === undefined ? '--' : `${r.h}:${String(r.m).padStart(2, '0')}`)
 
+// A countdown that fits the ring's middle: hours and minutes within a day, else whole days.
+const shortText = (r: Left | undefined) => (r !== undefined && r.h >= 24 ? `${Math.floor(r.h / 24)}d` : clockText(r))
+
 const pct = (rest: number | undefined) => (rest === undefined ? '--' : `${Math.round(rest)}%`)
 
 // The profile has no end date: a monthly subscription renews on the day of the month it began.
@@ -75,11 +78,15 @@ const arc = (c: number, r: number, rest: number | undefined, stroke: number) => 
   return `<circle class="s-${tone(rest)}" cx="${c}" cy="${c}" r="${r}" fill="none" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${((len * rest) / 100).toFixed(2)} ${len.toFixed(2)}" transform="rotate(-90 ${c} ${c})"/>`
 }
 
+// The 7-day ring outside, the 5-hour one inside; a plan with no 5-hour limit has the outer ring alone.
 const rings = (c: number, outer: number, inner: number, stroke: number, d: Drawing) =>
-  `<circle class="track" cx="${c}" cy="${c}" r="${outer}" fill="none" stroke-width="${stroke}"/>
+  d.hasFive
+    ? `<circle class="track" cx="${c}" cy="${c}" r="${outer}" fill="none" stroke-width="${stroke}"/>
 <circle class="track" cx="${c}" cy="${c}" r="${inner}" fill="none" stroke-width="${stroke}"/>
 ${arc(c, outer, d.week, stroke)}
 ${arc(c, inner, d.five, stroke)}`
+    : `<circle class="track" cx="${c}" cy="${c}" r="${outer}" fill="none" stroke-width="${stroke}"/>
+${arc(c, outer, d.week, stroke)}`
 
 const STYLE = `<style>
 text{font-family:ui-rounded,"SF Pro Rounded",-apple-system,BlinkMacSystemFont,sans-serif}
@@ -104,6 +111,8 @@ const metric = (label: string, rest: number | undefined, gap: number) =>
   `<tspan dx="${gap}" class="label" font-size="7.5">${label}</tspan><tspan dx="4" class="value f-${tone(rest)}" font-size="12">${pct(rest)}</tspan>`
 
 type Drawing = {
+  // False when the account has a 7-day limit but no 5-hour one: the 5H ring, figure and row are left out.
+  hasFive: boolean
   five: number | undefined
   week: number | undefined
   center: string
@@ -119,7 +128,7 @@ const svg = (d: Drawing) => {
 ${STYLE}
 ${rings(c, OUTER_R, INNER_R, STROKE, d)}
 <text class="center" font-size="5.2" x="${c}" y="${c}" text-anchor="middle" dominant-baseline="central">${d.center}</text>
-<text x="${RING + 8}" y="${c}" dominant-baseline="central">${metric('5H', d.five, 0)}<tspan dx="7" class="dot">•</tspan>${metric('7D', d.week, 7)}<tspan dx="7" class="dot">•</tspan><tspan dx="7" class="label" font-size="7.5">EXP</tspan><tspan dx="4" class="date" font-size="11">${d.renew}</tspan></text>
+<text x="${RING + 8}" y="${c}" dominant-baseline="central">${d.hasFive ? `${metric('5H', d.five, 0)}<tspan dx="7" class="dot">•</tspan>${metric('7D', d.week, 7)}` : metric('7D', d.week, 0)}<tspan dx="7" class="dot">•</tspan><tspan dx="7" class="label" font-size="7.5">EXP</tspan><tspan dx="4" class="date" font-size="11">${d.renew}</tspan></text>
 </svg>`
 }
 
@@ -137,10 +146,9 @@ const panelSvg = (d: Drawing) => {
 ${STYLE}
 <g transform="translate(2 2)">${rings(c, 58, 43, 10, d)}</g>
 <text class="center" font-size="20" x="${c + 2}" y="${c - 2}" text-anchor="middle" dominant-baseline="central">${d.center}</text>
-<text class="label" font-size="7.5" x="${c + 2}" y="${c + 16}" text-anchor="middle" dominant-baseline="central">5H RESET</text>
-${panelRow(20, '5H', d.five, d.fiveNote)}
-${panelRow(66, '7D', d.week, d.weekNote)}
-<text x="150" y="114" dominant-baseline="central"><tspan class="label" font-size="9">EXP</tspan><tspan x="182" class="date" font-size="15">${d.renew}</tspan></text>
+<text class="label" font-size="7.5" x="${c + 2}" y="${c + 16}" text-anchor="middle" dominant-baseline="central">${d.hasFive ? '5H' : '7D'} RESET</text>
+${d.hasFive ? `${panelRow(20, '5H', d.five, d.fiveNote)}\n${panelRow(66, '7D', d.week, d.weekNote)}` : panelRow(38, '7D', d.week, d.weekNote)}
+<text x="150" y="${d.hasFive ? 114 : 88}" dominant-baseline="central"><tspan class="label" font-size="9">EXP</tspan><tspan x="182" class="date" font-size="15">${d.renew}</tspan></text>
 </svg>`
 }
 
@@ -172,17 +180,20 @@ const viewOf = async ($: EngineInterface): Promise<View> => {
   const weekLeft = left(week)
   const renewsAt = acct.renewsAt
   const renew = !acct.checked ? '…' : renewsAt ? dayText(renewsAt) : '--'
+  // Before any reading both show --; a reading with a 7-day limit and no 5-hour one means the plan has none.
+  const hasFive = five !== undefined || week === undefined
   return {
     drawing: {
+      hasFive,
       five: fiveLeft,
       week: weekLeft,
-      center: five ? clockText(remaining(five.resetsAt, t)) : '--',
+      center: hasFive ? (five ? clockText(remaining(five.resetsAt, t)) : '--') : shortText(remaining(week?.resetsAt, t)),
       renew,
       fiveNote: resetNote(five, t),
       weekNote: resetNote(week, t),
     },
     // The same words everywhere: the ring's alt on desktop, the one line on other surfaces.
-    line: `5H ${pct(fiveLeft)} · 7D ${pct(weekLeft)} · EXP ${renew}`,
+    line: `${hasFive ? `5H ${pct(fiveLeft)} · ` : ''}7D ${pct(weekLeft)} · EXP ${renew}`,
     ago: agoText(await read($, pulledAt), t),
     five,
     week,
@@ -292,7 +303,7 @@ export const register: Register = on => {
           <ui.Svg source={panelSvg(view.drawing)} alt={view.line} width={PANEL_W} height={PANEL_H} />
         ) : (
           <Box flexDirection="column">
-            <Text>{`5H  ${pct(view.drawing.five)} left · ${view.drawing.fiveNote}`}</Text>
+            {view.drawing.hasFive ? <Text>{`5H  ${pct(view.drawing.five)} left · ${view.drawing.fiveNote}`}</Text> : null}
             <Text>{`7D  ${pct(view.drawing.week)} left · ${view.drawing.weekNote}`}</Text>
             <Text>{`EXP ${view.drawing.renew}`}</Text>
           </Box>
